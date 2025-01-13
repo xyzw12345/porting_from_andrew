@@ -1,8 +1,8 @@
 import Mathlib
 
-namespace TopologicalSpace
+namespace TopologicalSpace'
 
-open Topology
+open Topology TopologicalSpace
 
 variable {α β : Type*} [TopologicalSpace α] [TopologicalSpace β]
 
@@ -109,4 +109,4 @@ theorem isJacobson_iffOfSuprEqTop
       exact h z.2
     -/
 
-end TopologicalSpace
+end TopologicalSpace'
