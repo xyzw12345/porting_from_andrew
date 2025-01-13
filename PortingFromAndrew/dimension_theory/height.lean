@@ -152,3 +152,58 @@ theorem withTop.supr₂_add {ι : Sort u} {p : ι → Prop} (hs : ∃ i, p i)
     (⨆ (i : ι) (h : p i), f i h) + x = ⨆ (i : ι) (h : p i), f i h + x := by
   haveI : Nonempty { i // p i } := ⟨⟨_, hs.choose_spec⟩⟩
   sorry
+
+/-- The Krull dimension of a commutative ring, defined as the supremum of lengths of chains of prime ideals -/
+noncomputable def krullDimension (R : Type u) [CommRing R] : WithTop ℕ :=
+  ⨆ (c : Set (Ideal R)) (h : IsChain (· ≤ ·) c) (h' : ∀ I ∈ c, I.IsPrime), ENat.card c
+
+/-- A ring has finite Krull dimension if its Krull dimension is not ⊤ -/
+class FiniteKrullDimensional (R : Type u) [CommRing R] : Prop where
+  krullDimensionNeTop : krullDimension R ≠ ⊤
+
+variable {R : Type u} [CommRing R]
+
+lemma krullDimensionNeTop [h : FiniteKrullDimensional R] :
+  krullDimension R ≠ ⊤ :=
+h.krullDimensionNeTop
+
+lemma krullDimensionLtTop [FiniteKrullDimensional R] :
+  krullDimension R < ⊤ := by
+  exact Ne.lt_top (krullDimensionNeTop)
+
+lemma finiteKrullDimensionalIffLt :
+  FiniteKrullDimensional R ↔ krullDimension R < ⊤ := by
+  constructor
+  · intro h
+    exact krullDimensionLtTop
+  · intro h
+    exact ⟨ne_top_of_lt h⟩
+
+lemma krullDimensionOfSubsingleton [Subsingleton R] :
+  krullDimension R = 0 := by
+  sorry
+
+instance (priority := 100) finiteKrullDimensionalOfSubsingleton [Subsingleton R] :
+  FiniteKrullDimensional R := by
+  rw [finiteKrullDimensionalIffLt, krullDimensionOfSubsingleton]
+  exact WithTop.top_pos
+
+lemma Ideal.primeHeightLeKrullDimension {I : Ideal R} [I.IsPrime] :
+    I.height ≤ krullDimension R := by
+  sorry  -- The original uses le_supr₂ which needs to be adapted
+
+instance Ideal.finiteHeightOfFiniteDimensional {I : Ideal R} [FiniteKrullDimensional R] (priority := 900):
+    Ideal.FiniteHeight I := by
+  rw [Ideal.finiteHeight_iff_lt, or_iff_not_imp_left]
+  intro e
+  obtain ⟨M, hM, hM'⟩ := Ideal.exists_le_maximal I e
+  refine' (Ideal.height_mono hM').trans_lt _
+  refine' (lt_of_le_of_lt _ (krullDimensionLtTop (R := R)))
+  apply M.primeHeightLeKrullDimension
+
+theorem krullDimensionSucc [Nontrivial R] :
+    krullDimension R + 1 = Set.chainHeight {I : Ideal R | I.IsPrime} := by
+  have h : ∃ I : Ideal R, I.IsPrime := by
+    -- We know such an ideal exists in any nontrivial ring
+    sorry
+  sorry
