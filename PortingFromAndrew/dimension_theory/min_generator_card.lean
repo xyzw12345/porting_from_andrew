@@ -19,12 +19,30 @@ lemma spanrankNeTop_iff {p : Submodule R M} :
   p.spanrank ≠ ⊤ ↔ p.FG := by
   simp [spanrank, Submodule.fg_def]
 
-/-- For a finitely generated submodule, there exists a generating function from
+/- For a finitely generated submodule, there exists a generating function from
     its minimum generator cardinality -/
 theorem exists_generator_eq_min_generator_card {p : Submodule R M} (h : p.FG) :
   ∃ f : Fin p.minGeneratorCard → M, span R (Set.range f) = p := by
-  rcases h with ⟨s, hs⟩
+  obtain ⟨s, hs⟩ := h
   sorry
+  /-
+  let s' : { s : Set M // s.Finite ∧ span R s = p} := ⟨s, hs.1, hs.2⟩
+  have nonempty : ∃ x, x ∈ ({ s : { s : Set M // s.Finite ∧ span R s = p} // True } : Set _) := by
+    exists s'
+  obtain ⟨⟨s, h₁, h₂⟩, h₃⟩ := Nat.sInf_mem nonempty
+  have h₅ : h₁.toFinset.card = p.minGeneratorCard := h₃
+  let e₁ := h₁.toFinset.equivFin
+  let e₂ : Fin h₁.toFinset.card ≃ Fin p.minGeneratorCard := by
+    rw [h₅]
+    exact Equiv.refl _
+  let f : Fin p.minGeneratorCard → M := fun i => (e₁.symm (e₂.symm i)).val
+  existsi f
+  rw [← h₂]
+  apply span_eq_span_iff.mpr
+  constructor
+  · sorry  -- Proof of subset relation
+  · sorry  -- Proof of reverse subset relation
+  -/
 
 /-- For a finitely generated submodule, its spanrank is less than or equal to n
     if and only if there exists a generating function from fin n -/
