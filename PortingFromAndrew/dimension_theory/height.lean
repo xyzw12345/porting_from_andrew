@@ -1,5 +1,7 @@
 import Mathlib
 
+universe u
+
 variable {R : Type*} [CommRing R] (I : Ideal R)
 
 /-- The height of a prime ideal is defined as the supremum of the lengths of strictly decreasing
@@ -207,3 +209,44 @@ theorem krullDimensionSucc [Nontrivial R] :
     -- We know such an ideal exists in any nontrivial ring
     sorry
   sorry
+
+/-- If J has finite height and I ≤ J, then I has finite height -/
+lemma Ideal.finiteHeightOfLe {R : Type u} [CommRing R] {I J : Ideal R}
+  (e : I ≤ J) (hJ : J ≠ ⊤) [FiniteHeight J] :
+  FiniteHeight I where
+  eq_top_or_height_ne_top := Or.inr <| by
+    rw [← lt_top_iff_ne_top]
+    exact (height_mono e).trans_lt (height_lt_top hJ)
+
+/-- If J is a prime ideal containing I, and its height is less than or equal to the height of I,
+then J is a minimal prime over I -/
+lemma Ideal.memMinimalPrimesOfHeightEq {R : Type u} [CommRing R] {I J : Ideal R}
+  (e : I ≤ J) [J.IsPrime] [hJ : FiniteHeight J] (e' : height J ≤ height I) :
+  J ∈ I.minimalPrimes := by
+  obtain ⟨p, h₁, h₂⟩ := Ideal.exists_minimalPrimes_le e
+  convert h₁
+  sorry
+  -- refine eq_of_le_of_not_lt h₂ ?_
+  -- intro h₃
+  -- have := h₁.1.1
+  -- have := finiteHeightOfLe h₂ (by exact IsPrime.ne_top)
+  -- exact lt_irrefl _
+  --   ((height_strict_mono_of_is_prime h₃).trans_le (e'.trans $ height_mono h₁.1.2))
+
+/-- A prime ideal has height zero if and only if it is minimal -/
+lemma Ideal.primeHeightEqZeroIff {R : Type u} [CommRing R] {I : Ideal R} [I.IsPrime] :
+  primeHeight I = 0 ↔ I ∈ minimalPrimes R := by sorry
+  -- rw [primeHeight, Set.chain_height_eq_zero_iff]
+  -- constructor
+  -- · intro e
+  --   exact ⟨⟨inferInstance, bot_le⟩, fun J hJ e' => (eq_of_le_of_not_lt e' ?_).symm.le⟩
+  --   intro e''
+  --   show J ∈ (∅ : Set (Ideal R))
+  --   rw [← e]
+  --   exact ⟨hJ.1, e''⟩
+  -- · intro hI
+  --   ext J
+  --   suffices : J.IsPrime → ¬J < I
+  --   · simpa
+  --   intros hJ e
+  --   exact not_le_of_lt e (hI.2 ⟨hJ, bot_le⟩ e.le)
